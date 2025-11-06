@@ -1,112 +1,228 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, StyleSheet, View, Text, Alert } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SettingItem } from '@/src/components/ui/setting-item';
+import { Button } from '@/src/components/ui/button';
+import { settingsStorage, gameHistoryStorage, recentPlayersStorage } from '@/src/utils/storage';
+import { AppSettings } from '@/src/types';
+import { colors, typography, spacing } from '@/src/config/theme';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+export default function SettingsScreen() {
+  const [settings, setSettings] = useState<AppSettings>({
+    soundEnabled: true,
+    hapticsEnabled: true,
+    keepScreenAwake: true,
+    theme: 'auto',
+    defaultTimerDuration: 180,
+  });
 
-export default function TabTwoScreen() {
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    const loaded = await settingsStorage.get();
+    setSettings(loaded);
+  };
+
+  const updateSetting = async (key: keyof AppSettings, value: any) => {
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
+    await settingsStorage.save({ [key]: value });
+  };
+
+  const handleClearHistory = () => {
+    Alert.alert(
+      'Clear Game History',
+      'Are you sure you want to clear all game history? This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            await gameHistoryStorage.clear();
+            Alert.alert('Success', 'Game history cleared!');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleClearRecentPlayers = () => {
+    Alert.alert(
+      'Clear Recent Players',
+      'Are you sure you want to clear all recent player names?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: async () => {
+            await recentPlayersStorage.clear();
+            Alert.alert('Success', 'Recent players cleared!');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleResetSettings = () => {
+    Alert.alert(
+      'Reset All Settings',
+      'Are you sure you want to reset all settings to default?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            await settingsStorage.reset();
+            await loadSettings();
+            Alert.alert('Success', 'Settings reset to defaults!');
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={[colors.secondary, colors.secondaryDark]}
+        style={styles.header}
+      >
+        <Text style={styles.title}>⚙️ Settings</Text>
+        <Text style={styles.subtitle}>Customize your experience</Text>
+      </LinearGradient>
+
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Preferences</Text>
+
+          <SettingItem
+            icon="volume-high"
+            title="Sound Effects"
+            description="Play sounds during gameplay"
+            value={settings.soundEnabled}
+            onValueChange={(value) => updateSetting('soundEnabled', value)}
+          />
+
+          <SettingItem
+            icon="phone-portrait"
+            title="Haptic Feedback"
+            description="Feel vibrations on interactions"
+            value={settings.hapticsEnabled}
+            onValueChange={(value) => updateSetting('hapticsEnabled', value)}
+          />
+
+          <SettingItem
+            icon="sunny"
+            title="Keep Screen Awake"
+            description="Prevent screen from dimming during games"
+            value={settings.keepScreenAwake}
+            onValueChange={(value) => updateSetting('keepScreenAwake', value)}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Data</Text>
+
+          <SettingItem
+            icon="trash"
+            title="Clear Game History"
+            description="Remove all saved game sessions"
+            type="button"
+            onPress={handleClearHistory}
+            showChevron
+          />
+
+          <SettingItem
+            icon="people"
+            title="Clear Recent Players"
+            description="Remove saved player names"
+            type="button"
+            onPress={handleClearRecentPlayers}
+            showChevron
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Advanced</Text>
+
+          <SettingItem
+            icon="refresh"
+            title="Reset All Settings"
+            description="Restore default settings"
+            type="button"
+            onPress={handleResetSettings}
+            showChevron
+          />
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.version}>Party Games v1.0.0</Text>
+          <Text style={styles.footerText}>Made with ❤️ for great parties</Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  header: {
+    paddingTop: 60,
+    paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
+  title: {
+    fontSize: typography.fontSize['4xl'],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.white,
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
+    fontSize: typography.fontSize.lg,
+    color: colors.white,
+    opacity: 0.9,
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: spacing.lg,
+    paddingBottom: spacing['2xl'],
+  },
+  section: {
+    marginBottom: spacing.xl,
+  },
+  sectionTitle: {
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.text,
+    marginBottom: spacing.md,
+    marginLeft: spacing.xs,
+  },
+  footer: {
+    alignItems: 'center',
+    paddingTop: spacing.xl,
+  },
+  version: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+  },
+  footerText: {
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
   },
 });
