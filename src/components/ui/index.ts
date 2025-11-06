@@ -3,3 +3,4 @@ export { Card } from './card';
 export { Button } from './button';
 export { GameCard } from './game-card';
 export { SettingItem } from './setting-item';
+export { Timer } from './timer';
