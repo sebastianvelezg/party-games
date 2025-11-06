@@ -120,11 +120,11 @@ const styles = StyleSheet.create({
   // Variants
   primary: {
     backgroundColor: colors.primary,
-    ...shadows.sm,
+    ...shadows.md,
   },
   secondary: {
     backgroundColor: colors.secondary,
-    ...shadows.sm,
+    ...shadows.md,
   },
   outline: {
     backgroundColor: 'transparent',
@@ -132,7 +132,9 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   ghost: {
-    backgroundColor: 'transparent',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 
   // Sizes
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   ghostText: {
-    color: colors.primary,
+    color: colors.text,
   },
 
   // Text sizes
