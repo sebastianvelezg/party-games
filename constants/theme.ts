@@ -69,7 +69,16 @@ const backgrounds = {
 // TYPOGRAPHY
 // ========================================
 
-// Font Families
+// Font Families - default values
+const defaultFontFamilies = {
+  regular: "System",
+  medium: "System",
+  semiBold: "System",
+  bold: "System",
+  black: "System",
+  mono: "Courier",
+};
+
 export const fontFamilies =
   Platform.select({
     ios: {
@@ -88,15 +97,8 @@ export const fontFamilies =
       black: "Roboto-Black",
       mono: "RobotoMono-Regular",
     },
-    default: {
-      regular: "System",
-      medium: "System",
-      semiBold: "System",
-      bold: "System",
-      black: "System",
-      mono: "Courier",
-    },
-  }) || fontFamilies.default;
+    default: defaultFontFamilies,
+  }) || defaultFontFamilies;
 
 // Font Sizes - Using a modular scale
 export const fontSize = {
@@ -323,6 +325,7 @@ export const Theme = {
       border: neutral.gray200,
       borderFocus: brand.primary,
       divider: neutral.gray100,
+      icon: neutral.gray600,
 
       // Semantic colors
       ...semantic,
@@ -358,6 +361,7 @@ export const Theme = {
       border: neutral.gray800,
       borderFocus: brand.primary,
       divider: neutral.gray800,
+      icon: neutral.gray400,
 
       // Semantic colors
       ...semantic,
